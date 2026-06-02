@@ -1,1 +1,3 @@
-# informatik_projekt
+# Projekt Informatik
+
+Heyo :D
