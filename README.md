@@ -14,5 +14,5 @@ Mit dem branch als basis könnt ihr erstmal aber arbeiten
 
 P2P - Mirror
 
-Dedi Server - Mirror x Edgegap?
+Hosten - Mirror x Edgegap?
                       -> 60 min limit :/
