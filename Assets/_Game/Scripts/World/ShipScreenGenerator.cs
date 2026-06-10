@@ -49,7 +49,7 @@ public class ShipScreenGenerator : MonoBehaviour
     // Generierter Canvas (Referenz)
     [HideInInspector] public Canvas generatedCanvas;
 
-#if UNITY_EDITOR
+    #if UNITY_EDITOR
     [ContextMenu("Generate Screen UI")]
     public void GenerateScreenUI()
     {
@@ -461,5 +461,5 @@ public class ShipScreenGenerator : MonoBehaviour
         rt.sizeDelta        = sizeDelta;
         rt.anchoredPosition = Vector2.zero;
     }
-#endif
+    #endif
 }

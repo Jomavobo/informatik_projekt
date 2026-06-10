@@ -44,6 +44,12 @@ public class PowerDistribution : NetworkBehaviour
         Instance = this;
     }
 
+    // Beim Client-Start alle Werte synchronisieren
+    public override void OnStartClient()
+    {
+        PowerDistributionUI.Instance?.UpdateUI();
+    }
+
     void Update()
     {
         if (!isServer) return;
@@ -79,6 +85,29 @@ public class PowerDistribution : NetworkBehaviour
         if (alloc == null) return;
 
         alloc.allocated = Mathf.Max(0f, amount);
+        RpcUpdateAllocation(system, alloc.allocated);
+    }
+
+    [ClientRpc]
+    void RpcUpdateAllocation(ShipSystem system, float amount)
+    {
+        var alloc = allocations.Find(a => a.system == system);
+        if (alloc == null) return;
+        alloc.allocated = amount;
+        PowerDistributionUI.Instance?.UpdateUI();
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdSetReactorLimit(float limitPercent)
+    {
+        reactorLimit = Mathf.Clamp(limitPercent, 0f, 150f);
+        RpcUpdateReactorLimit(reactorLimit);
+    }
+
+    [ClientRpc]
+    void RpcUpdateReactorLimit(float limit)
+    {
+        reactorLimit = limit;
         PowerDistributionUI.Instance?.UpdateUI();
     }
 
@@ -87,7 +116,6 @@ public class PowerDistribution : NetworkBehaviour
         var alloc = allocations.Find(a => a.system == system);
         if (alloc == null) return 0f;
         if (alloc.optimal <= 0f) return 1f;
-
         return Mathf.Clamp01(alloc.allocated / alloc.optimal);
     }
 
@@ -96,11 +124,5 @@ public class PowerDistribution : NetworkBehaviour
         var alloc = allocations.Find(a => a.system == system);
         if (alloc == null) return false;
         return alloc.allocated >= alloc.minimum;
-    }
-
-    [Command(requiresAuthority = false)]
-    public void CmdSetReactorLimit(float limitPercent)
-    {
-        reactorLimit = Mathf.Clamp(limitPercent, 0f, 150f);
     }
 }

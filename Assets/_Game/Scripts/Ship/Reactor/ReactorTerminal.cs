@@ -6,25 +6,32 @@ public class ReactorTerminal : NetworkBehaviour
     [Header("Settings")]
     public float repairAmount = 25f;
 
+    [Header("Optional")]
+    public UnityEngine.UI.Button repairButton;
+
+    [Header("Proximity")]
+    public float viewDistance = 8f; // Distanz bis zu der andere Spieler den Screen sehen können
+
     [SyncVar(hook = nameof(OnInUseChanged))]
     private bool isInUse = false;
 
     private NetworkConnectionToClient currentUserConn;
 
-    // ── Vom Button im World Space Canvas aufgerufen ───────────────────────────
+    // ── Vom Button aufgerufen ─────────────────────────────────────────────────
     public void StartRepair()
     {
-        Debug.Log("StartRepair aufgerufen, isInUse: " + isInUse);
-        
-        if (isInUse) return;
-        
-        // Prüfen ob Reaktor bereits bei 100%
-        if (ReactorSystem.Instance != null && ReactorSystem.Instance.integrity >= 100f)
+        if (isInUse)
         {
-            Debug.Log("Reaktor bereits bei 100% - keine Reparatur nötig");
+            Debug.Log("Terminal wird bereits benutzt");
             return;
         }
-        
+
+        if (ReactorSystem.Instance != null && ReactorSystem.Instance.integrity >= 100f)
+        {
+            Debug.Log("Reaktor bereits bei 100%");
+            return;
+        }
+
         CmdRequestRepair();
     }
 
@@ -33,7 +40,6 @@ public class ReactorTerminal : NetworkBehaviour
     {
         if (isInUse) return;
 
-        // Herausfinden wer den Command geschickt hat
         var conn = sender ?? connectionToClient;
         if (conn == null) return;
 
@@ -76,6 +82,7 @@ public class ReactorTerminal : NetworkBehaviour
     void OnFailed()
     {
         UnregisterEvents();
+        CmdReleaseLock();
     }
 
     // ── Server ───────────────────────────────────────────────────────────────
@@ -97,6 +104,7 @@ public class ReactorTerminal : NetworkBehaviour
         {
             UnregisterEvents();
             PipePuzzle.Instance?.Close();
+            CmdReleaseLock();
         }
         else
         {
@@ -112,10 +120,16 @@ public class ReactorTerminal : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
+    void CmdReleaseLock()
+    {
+        isInUse         = false;
+        currentUserConn = null;
+    }
+
+    // ── SyncVar Hook ─────────────────────────────────────────────────────────
 
     void OnInUseChanged(bool oldVal, bool newVal)
     {
-        // Button im Canvas aktivieren/deaktivieren
         if (repairButton != null)
             repairButton.interactable = !newVal;
     }
@@ -131,11 +145,7 @@ public class ReactorTerminal : NetworkBehaviour
         {
             UnregisterEvents();
             PipePuzzle.Instance.Close();
+            CmdReleaseLock();
         }
     }
-
-    // ── Optional: Referenz zum Repair Button für visuelles Feedback ──────────
-    [Header("Optional")]
-    public UnityEngine.UI.Button repairButton;
-    
 }

@@ -6,28 +6,28 @@ public class PipePuzzleUI : MonoBehaviour
 {
     public static PipePuzzleUI Instance;
 
-    public GameObject     overlayPanel;
-    public RectTransform  gridContainer;
+    public GameObject overlayPanel;
+    public RectTransform gridContainer;
     public TextMeshProUGUI timerText;
     public TextMeshProUGUI statusText;
 
-    public float tileSize    = 72f;
+    public float tileSize = 72f;
     public float tileSpacing = 5f;
-    public float pipeWidth   = 16f; // Breite der Rohr-Segmente
+    public float pipeWidth = 16f; // Breite der Rohr-Segmente
 
-    private Image[,]      tileBgs;
+    private Image[,] tileBgs;
     private GameObject[,] tileRoots;
-    private int           n;
+    private int n;
 
     // Farben
-    static readonly Color C_Bg         = new Color(0.15f, 0.15f, 0.20f);
-    static readonly Color C_BgStart    = new Color(0.10f, 0.35f, 0.70f);
-    static readonly Color C_BgEnd      = new Color(0.70f, 0.35f, 0.10f);
-    static readonly Color C_Pipe       = new Color(0.85f, 0.85f, 0.90f);
+    static readonly Color C_Bg = new Color(0.15f, 0.15f, 0.20f);
+    static readonly Color C_BgStart = new Color(0.10f, 0.35f, 0.70f);
+    static readonly Color C_BgEnd = new Color(0.70f, 0.35f, 0.10f);
+    static readonly Color C_Pipe = new Color(0.85f, 0.85f, 0.90f);
     static readonly Color C_PipeSolved = new Color(0.15f, 0.90f, 0.40f);
-    static readonly Color C_BgSolved   = new Color(0.08f, 0.35f, 0.18f);
+    static readonly Color C_BgSolved = new Color(0.08f, 0.35f, 0.18f);
 
-    void Awake()    { Instance = this; }
+    void Awake() { Instance = this; }
     void OnEnable() { Instance = this; }
 
     public void Show()
@@ -53,10 +53,10 @@ public class PipePuzzleUI : MonoBehaviour
 
         foreach (Transform c in gridContainer) Destroy(c.gameObject);
 
-        tileBgs   = new Image[n, n];
+        tileBgs = new Image[n, n];
         tileRoots = new GameObject[n, n];
 
-        float step  = tileSize + tileSpacing;
+        float step = tileSize + tileSpacing;
         float total = n * step - tileSpacing;
         gridContainer.sizeDelta = new Vector2(total, total);
 
@@ -84,14 +84,14 @@ public class PipePuzzleUI : MonoBehaviour
         // Klick
         var btn = go.AddComponent<Button>();
         var colors = btn.colors;
-        colors.normalColor      = Color.white;
+        colors.normalColor = Color.white;
         colors.highlightedColor = new Color(1f, 1f, 1f, 0.85f);
-        colors.pressedColor     = new Color(0.8f, 0.8f, 0.8f);
+        colors.pressedColor = new Color(0.8f, 0.8f, 0.8f);
         btn.colors = colors;
         int cx = x, cy = y;
         btn.onClick.AddListener(() => PipePuzzle.Instance?.RotateTile(cx, cy));
 
-        tileBgs[x, y]   = bg;
+        tileBgs[x, y] = bg;
         tileRoots[x, y] = go;
     }
 
@@ -114,7 +114,7 @@ public class PipePuzzleUI : MonoBehaviour
 
         // Hintergrundfarbe
         bool isStart = new Vector2Int(x, y) == PipePuzzle.Instance.Start;
-        bool isEnd   = new Vector2Int(x, y) == PipePuzzle.Instance.End;
+        bool isEnd = new Vector2Int(x, y) == PipePuzzle.Instance.End;
         tileBgs[x, y].color = isStart ? C_BgStart : isEnd ? C_BgEnd : C_Bg;
 
         // Rohr-Segmente neu zeichnen
@@ -129,8 +129,8 @@ public class PipePuzzleUI : MonoBehaviour
     // Zeichnet Rechtecke die das Rohr-Muster darstellen
     void DrawPipe(GameObject parent, Dir connections, Color color)
     {
-        float half   = tileSize / 2f;
-        float pw     = pipeWidth;
+        float half = tileSize / 2f;
+        float pw = pipeWidth;
         float halfPW = pw / 2f;
 
         // Mitte (immer wenn mehr als eine Verbindung)
@@ -187,7 +187,7 @@ public class PipePuzzleUI : MonoBehaviour
 
         if (statusText != null)
         {
-            statusText.text  = "VERBINDUNG HERGESTELLT!";
+            statusText.text = "VERBINDUNG HERGESTELLT!";
             statusText.color = C_PipeSolved;
         }
     }
@@ -196,7 +196,7 @@ public class PipePuzzleUI : MonoBehaviour
     public void UpdateTimer(float t)
     {
         if (timerText == null) return;
-        timerText.text  = $"{Mathf.Max(0f, t):0.0}s";
+        timerText.text = $"{Mathf.Max(0f, t):0.0}s";
         timerText.color = t < 15f ? Color.red : t < 30f ? Color.yellow : Color.white;
     }
 }

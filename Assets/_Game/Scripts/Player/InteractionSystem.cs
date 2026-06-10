@@ -131,13 +131,21 @@ void OnLocalInteract(IInteractable target)
 
     void TriggerInteract(IInteractable target)
     {
+        // Focus-Interaktionen direkt lokal ausführen
+        if (target.InteractType == InteractType.Focus)
+        {
+            target.OnInteract(gameObject);
+            return;
+        }
+
+        // Alle anderen über Server
         if (target is MonoBehaviour mb)
         {
             var netId = mb.GetComponent<NetworkIdentity>();
             if (netId != null)
                 CmdInteract(netId);
             else
-                target.OnInteract(gameObject); // Lokal falls kein NetworkIdentity
+                target.OnInteract(gameObject);
         }
     }
 
